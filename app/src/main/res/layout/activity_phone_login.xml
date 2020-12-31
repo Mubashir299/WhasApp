@@ -65,6 +65,7 @@
                 android:inputType="number"
                 android:maxLength="5"
                 android:maxLines="1"
+                android:text="92"
                 android:hint="855"/>
 
             <EditText
@@ -73,6 +74,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="phone"
                 android:maxLines="1"
+                android:text="3085657994"
                 android:hint="phone number"/>
         </LinearLayout>
         <TextView
@@ -95,7 +97,7 @@
 
 
     <Button
-        android:id="@+id/btn_next"
+        android:id="@+id/btnNext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

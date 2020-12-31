@@ -12,14 +12,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WhasApp">
-        <activity android:name=".View.Auth.PhoneLoginActivity"></activity>
+        <activity android:name=".View.Auth.PhoneLoginActivity">   <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter></activity>
         <activity android:name=".View.Starup.WellcomeScreenActivity" />
         <activity android:name=".View.Starup.SplashScreenActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".View.MainActivity" />
     </application>

@@ -9,9 +9,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 
 import com.example.whasapp.R;
+import com.example.whasapp.View.MainActivity;
 import com.example.whasapp.databinding.ActivityPhoneLoginBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -64,6 +66,7 @@ import java.util.concurrent.TimeUnit;
      binding.btnNext.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+       Log.d("testbtn",binding.btnNext.getText().toString());
        if (binding.btnNext.getText().toString().equals("Next")) {
            progressDialog.setMessage( "Please wait..." );
            progressDialog.show();
@@ -77,7 +80,7 @@ import java.util.concurrent.TimeUnit;
       }
      });
 
-     mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+   /*  mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
 
       @Override
@@ -85,7 +88,20 @@ import java.util.concurrent.TimeUnit;
        Log.d(TAG, "onVerificationCompleted: Complete");
        signInWithPhoneAuthCredential(phoneAuthCredential);
        progressDialog.dismiss();
+
+       String code = phoneAuthCredential.getSmsCode();
+
+       //sometime the code is not detected automatically
+       //in this case the code will be null
+       //so user has to manually enter the code
+       if (code != null) {
+        binding.edCode.setText(code);
+        //verifying the code
+        verifyVerificationCode(code);
+       }
       }
+
+
 
       @Override
       public void onVerificationFailed(@NonNull FirebaseException e) {
@@ -104,16 +120,65 @@ import java.util.concurrent.TimeUnit;
        mResendToken = token;
 
        binding.btnNext.setText("Confirm");
-       /*binding.edCode.setVisibility(View.VISIBLE);
+       binding.edCode.setVisibility(View.VISIBLE);
        binding.edCodeCountry.setEnabled(false);
-       binding.edPhone.setEnabled(false);*/
+       binding.edPhone.setEnabled(false);
 
        progressDialog.dismiss();
 
       }
-     };
+     };*/
     }
 
+  private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks2 = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+   @Override
+   public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+    //Getting the code sent by SMS
+    String code = phoneAuthCredential.getSmsCode();
+
+    //sometime the code is not detected automatically
+    //in this case the code will be null
+    //so user has to manually enter the code
+    if (code != null) {
+     binding.edCode.setText(code);
+     //verifying the code
+     verifyVerificationCode(code);
+    }
+   }
+
+   @Override
+   public void onVerificationFailed(FirebaseException e) {
+    progressDialog.dismiss();
+    Toast.makeText(PhoneLoginActivity.this, "not Verify", Toast.LENGTH_LONG).show();
+   }
+
+   @Override
+   public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+    super.onCodeSent(s, forceResendingToken);
+    mVerificationId = s;
+    progressDialog.dismiss();
+    binding.btnNext.setText("Confirm");
+    binding.edCode.setVisibility(View.VISIBLE);
+    binding.edCodeCountry.setEnabled(false);
+    binding.edPhone.setEnabled(false);
+   }
+  };
+  PhoneAuthCredential credential;
+  private void verifyVerificationCode(String otp) {
+   if(!mVerificationId.isEmpty() && mVerificationId != null)
+    //creating the credential
+    credential = PhoneAuthProvider.getCredential(mVerificationId, otp);
+   else {
+    Toast.makeText(PhoneLoginActivity.this, "Wrong Code", Toast.LENGTH_LONG).show();
+
+    //next.setEnabled(true);
+   }
+
+   //signing the user
+   if(credential != null)
+    signInWithPhoneAuthCredential(credential);
+
+  }
   private void startPhoneNumberVerification(String phoneNumber) {
 
    progressDialog.setMessage("Send code to : "+phoneNumber);
@@ -123,7 +188,7 @@ import java.util.concurrent.TimeUnit;
                    .setPhoneNumber(phoneNumber)       // Phone number to verify
                    .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
                    .setActivity(this)                 // Activity (for callback binding)
-                   .setCallbacks(mCallbacks)          // OnVerificationStateChangedCallbacks
+                   .setCallbacks(mCallbacks2)          // OnVerificationStateChangedCallbacks
                    .build();
    PhoneAuthProvider.verifyPhoneNumber(options);        // OnVerificationStateChangedCallbacks
 
@@ -133,6 +198,7 @@ import java.util.concurrent.TimeUnit;
 
    PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
    signInWithPhoneAuthCredential(credential);
+   progressDialog.setMessage("Verifying Number");
   }
 
   private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
@@ -144,8 +210,8 @@ import java.util.concurrent.TimeUnit;
 
               progressDialog.dismiss();
               Log.d(TAG, "signInWithCredential:success");
-              FirebaseUser user = task.getResult().getUser();
-             // startActivity(new Intent(PhoneLoginActivity.this, SetUserInfoActivity.class));
+             // FirebaseUser user = task.getResult().getUser();
+              startActivity(new Intent(PhoneLoginActivity.this, MainActivity.class));
 
              } else {
 
